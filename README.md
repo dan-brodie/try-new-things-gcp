@@ -102,23 +102,29 @@ First things first we need to copy all the files in this git repo to your envion
     ```
 
 - now google is secure so its not going to let the cloud builder service do whatver it wants in your project so you need to grant it some permissions. were going to set an access role so that cloudbuild can deploy to cloud run. to do this we need the project number as well as the project name you selected. we can get this by running
-```
-gcloud projects list
-```
-then substitute your details in below
-```
-gcloud projects add-iam-policy-binding [PROJECT_NAME] \
-  --member "serviceAccount:[PROJECT_NUMBER]@cloudbuild.gserviceaccount.com" \
-  --role roles/run.admin
+    ```
+    gcloud projects list
+    ```
+    then substitute your details in below
+    ```
+    gcloud projects add-iam-policy-binding [PROJECT_NAME] \
+    --member "serviceAccount:[PROJECT_NUMBER]@cloudbuild.gserviceaccount.com" \
+    --role roles/run.admin
 
-gcloud iam service-accounts add-iam-policy-binding \
-  [PROJECT_NUMBER]-compute@developer.gserviceaccount.com \
-  --member="serviceAccount:[PROJECT_NUMBER]@cloudbuild.gserviceaccount.com" \
-  --role="roles/iam.serviceAccountUser"
-  ```
-- test your trigger from the console [here](https://console.cloud.google.com/cloud-build/triggers) click run trigger then in the dashboard on the left you should be able to see the progress of hte build!
+    gcloud iam service-accounts add-iam-policy-binding \
+    [PROJECT_NUMBER]-compute@developer.gserviceaccount.com \
+    --member="serviceAccount:[PROJECT_NUMBER]@cloudbuild.gserviceaccount.com" \
+    --role="roles/iam.serviceAccountUser"
+    ```
+- test your trigger from the console [here](https://console.cloud.google.com/cloud-build/triggers) click run trigger then in the dashboard on the left you should be able to see the progress of the build!
 
 ## Marvel at your wonderful creation!
 
-You should now be able to test your application
+You should now be able to test your application - you should see that cloudbuilder has deployed your wiki app - switch to the cloud run console [here](https://console.cloud.google.com/run) click on your app and you should see an URL you can test
+
+Append it with /view/anything e.g
+
+https://wiki-o3kfw2crsq-ew.a.run.app/view/thisisathing
+
+The application allows for /view and /edit if you view something that doesnt exist you can create it and it will exist from now on.
 

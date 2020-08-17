@@ -41,14 +41,7 @@ And thats about it!
 5. enable some api's - these are the google services we're going to use - you can do this by clicking [here](https://console.cloud.google.com/flows/enableapi?apiid=cloudbuild.googleapis.com,run.googleapis.com,containerregistry.googleapis.com,cloudresourcemanager.googleapis.com)
 6. start cloud shell in the top right and you are ready to follow along
 
-## What are the steps
-
-First things first we need to copy all the file in this git repo to your envionment.
-
-- in cloud shell run the following command to copy this git repository to your environment
-    ```
-    git clone github.com/dan-brodie/try-new-things-gcp
-    ```
+## What are we doing?
 
 We want to deploy our application using cloud run. In order to do this we need the application to be packaged up as a (docker) container.  Ideally if we make any changes to the application we want a system to detect this and automatically package up a new version.
 
@@ -63,6 +56,10 @@ We could do this manually by running the following command in the terminal
 docker build -t myapplication .
 docker push myapplication ...
 ```
+and then deploy this to cloudrun manually
+```
+gloud run deploy myapplication --image myapplication
+```
 
 But we really want to automate this process, we don't want an engineer to have to log in pull the latest changes and manually build the software.
 
@@ -72,5 +69,56 @@ The CI Tooling we are going to use for this process is Google Cloud Build.
 
 Cloudbuild can be easily defined as a set of instructions in a `cloudbuild.yaml` file.
 
+## What are the steps
 
+First things first we need to copy all the files in this git repo to your envionment and then push it back to a google source repo, this lets you attach a trigger in cloudbuild.
+
+- in cloud shell run the following command to copy this git repository to your environment
+    ```
+    git clone https://github.com/dan-brodie/try-new-things-gcp.git
+    ```
+- switch to the new directory thats been downloaded by typing
+    ```
+    cd try-new-things-gcp
+    ```
+- create a source repository in google - pick whatever name you like, you will need to substitute this in the next steps.
+    ```
+    gcloud source repos create [REPO_NAME]
+    ```
+- push the code to your new source repo - you need to add your repository as a new remoste location
+    ```
+    gcloud init && git config credential.helper gcloud.sh
+    git remote add google \
+    https://source.developers.google.com/p/[PROJECT_NAME]/r/[REPO_NAME]
+    git push --all google
+
+    ```
+- create a trigger that looks at your copy of the code - let it know what to do by telling where the cloudconfig.yaml file is
+    ```
+    gcloud beta builds triggers create cloud-source-repositories \
+    --repo=[REPO_NAME] \
+    --branch-pattern=".*" \
+    --build-config=cloudbuild.yaml \
+    ```
+
+- now google is secure so its not going to let the cloud builder service do whatver it wants in your project so you need to grant it some permissions. were going to set an access role so that cloudbuild can deploy to cloud run. to do this we need the project number as well as the project name you selected. we can get this by running
+```
+gcloud projects list
+```
+then substitute your details in below
+```
+gcloud projects add-iam-policy-binding [PROJECT_NAME] \
+  --member "serviceAccount:[PROJECT_NUMBER]@cloudbuild.gserviceaccount.com" \
+  --role roles/run.admin
+
+gcloud iam service-accounts add-iam-policy-binding \
+  [PROJECT_NUMBER]-compute@developer.gserviceaccount.com \
+  --member="serviceAccount:[PROJECT_NUMBER]@cloudbuild.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountUser"
+  ```
+- test your trigger from the console [here](https://console.cloud.google.com/cloud-build/triggers) click run trigger then in the dashboard on the left you should be able to see the progress of hte build!
+
+## Marvel at your wonderful creation!
+
+You should now be able to test your application
 

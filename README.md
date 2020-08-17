@@ -25,7 +25,7 @@ This is reflective of what our engineering teams might recieve from a client.
 ## What the files are
 
 - main.go - this is the application itself, its very simple and exists in just one file!
-- go.mod - this is the file that tells golang what the application needs in order to build sucessfully.
+- html files - these are templates that the application will use, if you know some HTML you could edit these to make the site look nice
 - dockerfile - this is the build instructions for the container that the application will be packaged in. this gives us a standard format that many different systems will understand. For simplicity you can think of it like burning the file to a CD so you can take it with you. (theres more to it than that)
 - readme.md - thats this file! its written in a format called markdown hence the .md.
 - cloudbuild.yaml - instructions for cloud build!
@@ -37,8 +37,9 @@ And thats about it!
 1. Log into google with your personal account and get a free trial for GCP
 2. log into the google console
 3. create a new project [here](https://console.cloud.google.com/projectcreate)
-4. Once you have your project (you can name it whatever you like) open the cloud console at this address https://console.cloud.google.com/ and start cloud shell in the top right and you are ready to follow along
-
+4. Once you have your project (you can name it whatever you like) open the cloud console at this address https://console.cloud.google.com/ 
+5. enable some api's - these are the google services we're going to use - you can do this by clicking [here](https://console.cloud.google.com/flows/enableapi?apiid=cloudbuild.googleapis.com,run.googleapis.com,containerregistry.googleapis.com,cloudresourcemanager.googleapis.com)
+6. start cloud shell in the top right and you are ready to follow along
 
 ## What are the steps
 
@@ -51,7 +52,8 @@ First things first we need to copy all the file in this git repo to your envionm
 
 We want to deploy our application using cloud run. In order to do this we need the application to be packaged up as a (docker) container.  Ideally if we make any changes to the application we want a system to detect this and automatically package up a new version.
 
-Luckily git has functionality to do this.  We can tell cloud build to watch for a trigger or a new commit and automatically build a new version when this happens.
+We can do this by combining source code management (git) and cloud build (CI).  
+Cloud build can watch for a trigger or a new commit and automatically build a new version when this happens.
 
 We're going to tell google to follow the instructions in the `dockerfile` to build the application and store the created image in the Google Container Registry every time this trigger occurs.
 
